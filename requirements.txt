@@ -5,3 +5,4 @@ streamlit
 datetime
 matplotlib
 plotly
+logging
