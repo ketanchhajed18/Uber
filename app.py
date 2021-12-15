@@ -6,8 +6,7 @@ import streamlit as st
 from datetime import datetime
 from datetime import timedelta
 from matplotlib import cm
-
-
+import plotly.express as px
 
 st.write("""# Welcome to first Data Science Web App """)
 st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -21,6 +20,8 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 #st.pyplot(fig)
 
 uber = pd.read_csv('https://uberbucket12.s3.ap-south-1.amazonaws.com/UberDataset.csv', delimiter=None)
+#uber = pd.read_csv('UberDataset1.csv', delimiter=None)
+
 st.table(uber.head(5))
 uber.isnull().sum().sort_values(ascending=False)
 
@@ -32,7 +33,7 @@ uber.rename(columns={'Date/Time':'date_time'}, inplace=True)
 # Function to convert features to datetime
 def convert_date(df, cols):
   for col in cols:
-    df[col] = df[col].apply(lambda x:x.replace(' +0000 UTC', ''))
+    df[col] = df[col].astype(str).apply(lambda x:x.replace(' +0000 UTC', ''))
     df[col] = pd.to_datetime(df[col])
   return df
 
@@ -87,3 +88,57 @@ ax.tick_params(labelsize = 8)
 ax.legend(handles,labels,loc=0, title='Months', prop={'size':10})
 ax.get_legend().get_title().set_fontsize('8')
 st.pyplot(fig)
+
+
+#Module 3
+st.write(""" # MODULE III : Count The Rides For Every Hour Of Everyday In The Month """)
+uber['time'] =  uber['date_time'].dt.time
+uber['hour'] = uber['date_time'].dt.hour
+uber.head()
+
+hourly_ride = uber.groupby(['month','hour','weekday'])['Base'].count()
+hourly_ride = hourly_ride.reset_index()
+hourly_ride = hourly_ride.rename(columns = {'Base':'RideCount'})
+hourly_ride.head()
+
+aug_hourly_data = hourly_ride[hourly_ride.month == 'Aug']
+
+fig = plt.figure(figsize=(12,6))
+sns.set_style('darkgrid')
+
+ax = sns.pointplot(x="hour", y="RideCount", hue="weekday", data=aug_hourly_data)
+handles,labels = ax.get_legend_handles_labels()
+ax.set_xlabel('Hour of Day', fontsize = 15)
+ax.set_ylabel('Uber Pickups', fontsize = 15)
+ax.set_title('Total Hourly Uber Pickups By Day of the Week in NYC (August 2014)', fontsize=16)
+ax.tick_params(labelsize = 8)
+ax.legend(handles,labels,loc=0, title="Days", prop={'size':10})
+ax.get_legend().get_title().set_fontsize('8')
+st.pyplot(fig)
+
+#Module 4
+st.write(""" # MODULE IV : Hourly Averages of Pickups Each Weekday """)
+
+weekday_hourly_avg = hourly_ride.groupby(['weekday','hour'])['RideCount'].mean()
+weekday_hourly_avg = weekday_hourly_avg.reset_index()
+weekday_hourly_avg = weekday_hourly_avg.rename(columns = {'RideCount':'AverageRides'})
+weekday_hourly_avg = weekday_hourly_avg.sort_index()
+weekday_hourly_avg.head()
+weekday_hourly_avg.tail()
+
+st.table(weekday_hourly_avg.weekday.value_counts())
+
+
+#Module 5
+st.write(""" # MODULE V : Distribution of Uber pickups Based on the Bases""")
+uber.Base.value_counts()
+
+base_names = {"Base": {'B02617':'Weiter', 'B02598':'Hinter','B02682':'Schmecken','B02764':'Danach-NY','B02512':'Unter'}}
+uber_bases = uber.copy()
+uber_bases.replace(base_names, inplace=True)
+st.table(uber_bases.head())
+st.table(uber_bases.groupby(by=['Base']).count())
+#fig= px.bar(x=uber_bases['Base'].head(5000),density=1, color='green',orientation="v",)
+#st.plotly_chart(fig)
+
+
