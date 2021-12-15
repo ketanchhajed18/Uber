@@ -8,7 +8,14 @@ from datetime import timedelta
 from matplotlib import cm
 import plotly.express as px
 
-st.write("""# Welcome to first Data Science Web App """)
+import logging
+
+logging.basicConfig(level='INFO')
+
+mlogger = logging.getLogger('matplotlib')
+mlogger.setLevel(logging.WARNING)
+
+st.write("""# Uber Data Analysis """)
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
