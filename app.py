@@ -8,8 +8,7 @@ from datetime import timedelta
 from matplotlib import cm
 import plotly.express as px
 
-
-st.write("""# Uber Data Analysis """)
+st.write("""# Welcome to first Data Science Web App """)
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
@@ -55,18 +54,13 @@ st.write(""" # MODULE I : HOW MANY TRIPS UBER COMPLETED OVER THE MONTHS OF 2014 
 fig = plt.figure()
 sns.scatterplot(x='month',y='Base',data=uber);
 st.pyplot(fig)
-
-
-form = st.form(key='my_form')
-months = form.multiselect("Please select Month", ['Jan','Feb','March','Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep','Oct','Nov','Dec'])
-submit = form.form_submit_button(label='OK')
-if submit:
-    st.write(months)    
-    st.write("Total Completed Trips : ", uber.weekday.count())
-    st.write(uber.month.value_counts().sort_index(ascending=True))
-    moduleI = plt.figure()
-    sns.countplot(data=uber, x='month',order=months, palette='bright')
-    st.pyplot(moduleI)
+month = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+st.write(month)    
+st.write("Total Completed Trips : ", uber.weekday.count())
+st.write(uber.month.value_counts().sort_index(ascending=True))
+moduleI = plt.figure()
+sns.countplot(data=uber, x='month',order=month, palette='bright')
+st.pyplot(moduleI)
 
 
 #Module 2
@@ -132,14 +126,15 @@ st.table(weekday_hourly_avg.weekday.value_counts())
 
 #Module 5
 st.write(""" # MODULE V : Distribution of Uber pickups Based on the Bases""")
-uber.Base.value_counts()
+st.table(uber.Base.value_counts())
 
 base_names = {"Base": {'B02617':'Weiter', 'B02598':'Hinter','B02682':'Schmecken','B02764':'Danach-NY','B02512':'Unter'}}
 uber_bases = uber.copy()
 uber_bases.replace(base_names, inplace=True)
 st.table(uber_bases.head())
-st.table(uber_bases.groupby(by=['Base']).count())
-#fig= px.bar(x=uber_bases['Base'].head(5000),density=1, color='green',orientation="v",)
-#st.plotly_chart(fig)
 
+for i in base_names.values():
+  for j,k in zip(i.values(),uber.Base.value_counts()):
+    st.write((str(j)+"\t\t"+str(k)))
+    
 
